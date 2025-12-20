@@ -156,6 +156,13 @@
     --selection-bg: oklch(0.9 0.05 var(--primary-hue));
   }
 }
+
+@supports (color: oklch(0 0 0)) {
+  :root[theme='light'] navbar {
+    background: oklch(0.95 0.01 var(--primary-hue) / 0.8);
+  }
+}
+
 @supports not (color: oklch(0 0 0)) {
   :root[theme='light'] {
     --primary: #7d98f5;
@@ -448,7 +455,6 @@ body {
   border: 1px solid #ddd;
   border-radius: 3px;
 }
-navbar,
 .article-inner,
 #article-nav .article-nav-btn,
 .comment-card,
@@ -465,6 +471,11 @@ navbar,
   -ms-transition: background 0.15s ease-out;
   transition: background 0.15s ease-out;
 }
+
+:root[theme='light'] navbar {
+  background: rgba(255, 255, 255, 0.8);
+}
+
 .article-tag-list-link,
 .widget-tag-list-link,
 .info-card .link-list .link-btn {
@@ -774,6 +785,11 @@ navbar {
   margin: 0 auto;
   border-radius: 0 0 16px 16px;
   top: 0;
+  background: rgba(30, 33, 43, 0.8);
+  -webkit-transition: background 0.15s ease-out;
+  -moz-transition: background 0.15s ease-out;
+  -ms-transition: background 0.15s ease-out;
+  transition: background 0.15s ease-out;
 }
 #title-nav {
   margin-left: 16px;

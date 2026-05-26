@@ -1,0 +1,6 @@
+User-agent: *
+Allow: /
+Disallow: /search.json
+
+Sitemap: https://3h1xy.com/sitemap.xml
+Host: 3h1xy.com
